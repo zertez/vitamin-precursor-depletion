@@ -5,9 +5,7 @@ import pandas as pd
 import seaborn as sns
 from scipy.optimize import curve_fit
 
-# -------------------------------------------------------------------
-# STYLE: NO BOX, BLACK AXES
-# -------------------------------------------------------------------
+# Styling
 sns.set_context("notebook", font_scale=1.5)
 sns.set_style(
     "ticks",
@@ -20,15 +18,10 @@ sns.set_style(
     },
 )
 
-# -------------------------------------------------------------------
-# EXPERIMENTAL LIMIT (Used only for filtering the dataset initially)
-# -------------------------------------------------------------------
+# Experimental limit
 MAX_HOURS = 72
 
-# -------------------------------------------------------------------
 # LOAD DATA
-# -------------------------------------------------------------------
-# NOTE: Using the absolute path you provided.
 df_growth = pd.read_csv(
     "/Users/marcusdalakerfigenschou/Documents/osteocarcoma_model/osteo_sim/data/BIOMED320_2025_growth.csv",
     header=7,
@@ -37,9 +30,7 @@ df_growth = pd.read_csv(
 df_growth["Elapsed"] = pd.to_numeric(df_growth["Elapsed"], errors="coerce")
 df_growth = df_growth[df_growth["Elapsed"] <= MAX_HOURS].copy()
 
-# -------------------------------------------------------------------
-# RENAME COLUMNS FOR CLARITY
-# -------------------------------------------------------------------
+# Remove columns
 df_growth.rename(
     columns={
         "not supplemented": "w/o B2, B3, B5",
@@ -58,9 +49,7 @@ palette = sns.color_palette("tab10", len(mediums))
 colors = dict(zip(mediums, palette))
 
 
-# -------------------------------------------------------------------
-# LOGISTIC FUNCTION (SAME SYMBOLS AS SUPERVISOR)
-# -------------------------------------------------------------------
+# Logistic functional
 def logistic_growth(x, L, k, x0):
     """
     L  = upper asymptote (max confluence)
@@ -70,9 +59,7 @@ def logistic_growth(x, L, k, x0):
     return L / (1 + np.exp(-k * (x - x0)))
 
 
-# -------------------------------------------------------------------
-# 1) GROWTH CURVES WITH ERROR BARS
-# -------------------------------------------------------------------
+# Growth curves with error bars
 records = []
 for medium in mediums:
     for _, row in df_growth.iterrows():
@@ -131,9 +118,8 @@ plt.tight_layout()
 plt.savefig("cell_growth_curves_logistic_k.png", dpi=1200)
 # plt.show()
 
-# -------------------------------------------------------------------
-# 2) LOGISTIC FITS (k AS GROWTH RATE)
-# -------------------------------------------------------------------
+
+# Logistical fitting
 x = df_growth["Elapsed"]
 datasets = {m: df_growth[m] for m in mediums}
 results = {}
@@ -180,7 +166,6 @@ for i, (label, y) in enumerate(datasets.items()):
     # axes[i].set_xlim(0, MAX_HOURS) # REMOVED: To prevent clipping
     axes[i].set_ylim(0, 100)
 
-    # FIXED: Reverted to f-string and used double braces {{...}}
     # for the LaTeX part to prevent the KeyError when mixing
     # the format function with LaTeX.
     axes[i].text(
@@ -210,11 +195,11 @@ sns.barplot(
     data=df_rates,
     x="Medium",
     y="Logistic_Growth_Rate_k",
-    hue="Medium",  # ADDED: To fix FutureWarning
+    hue="Medium",
     palette=colors,
     edgecolor="black",
     alpha=0.9,
-    legend=False,  # ADDED: To suppress legend that would appear due to hue
+    legend=False, 
 )
 
 plt.title("U2OS")
@@ -236,9 +221,7 @@ plt.tight_layout()
 plt.savefig("logistic_growth_rates_k.png", dpi=1200)
 # plt.show()
 
-# -------------------------------------------------------------------
-# SUMMARY TABLE
-# -------------------------------------------------------------------
+# Summary table
 print("\n" + "=" * 70)
 print("LOGISTIC GROWTH RATE SUMMARY (k)")
 print("=" * 70)
